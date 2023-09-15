@@ -4,33 +4,29 @@ import threading
 import re
 from bs4 import BeautifulSoup
 import requests
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from fake_useragent import UserAgent
 import jieba
 from tkinter import scrolledtext
 from urllib import parse
 import jsonpath as jsp
-import ujson
-import concurrent.futures
+import os
 
-# 创建一个全局标志变量，用于通知线程是否终止
-stop_threads = False
 cookies = {
-    '__client_id': '2a85a842dc5ec79157e99bb9ff1c722cb27c38e1',
-    '_uid': '830471'
+    '__client_id': '',
+    '_uid': ''
 }
 
 problem_list = []
 
-# difficulties = {
-#     1: "入门",
-#     2: "普及-",
-#     3: "普及/提高-",
-#     4: "普及+/提高",
-#     5: "提高+/省选-",
-#     6: "省选/NOI-",
-#     7: "NOI/NOI+/CTSC"
-# }
+difficulties = {
+    1: "入门",
+    2: "普及-",
+    3: "普及/提高-",
+    4: "普及+/提高",
+    5: "提高+/省选-",
+    6: "省选/NOI-",
+    7: "NOI/NOI+/CTSC"
+}
 
 difficulties_reverse = {
     "入门": 1,
@@ -113,18 +109,6 @@ def filterList():
     html_parse = json.loads(parse.unquote(url_parse)[1:-1])
     result_list = list(jsp.jsonpath(html_parse, '$.currentData.problems.result')[0])
 
-    # information_list = json_file["currentData"]["problems"]["result"]
-    # problem_list = []
-    # for i in range(0, len(information_list)):
-    #     information = information_list[i]
-    #     problem = Problem()
-    #     problem.setBase(baseUrl=base_url, pid=1000 + i)
-    #     problem.setPrime(information['difficulty'], information['title'])
-    #     # tag = information['tags']
-    #     # flag = information['flag']
-    #     # difficulty = information['difficulty']
-    #     # type = information['type']
-    #     problem_list.append(problem)
     user_agent = UserAgent()
     headers = {'User-Agent': user_agent.random}
     tag_url = 'https://www.luogu.com.cn/_lfe/tags'
@@ -133,12 +117,6 @@ def filterList():
     for information in result_list:
         problem = Problem()
         problem.pid = int(jsp.jsonpath(information, '$.pid')[0][1:])
-        # problem_id_trimmed = problem.pid[1:]
-        #
-        # if int(problem_id_trimmed) < start_num:
-        #     continue
-        # if int(problem_id_trimmed) > end_num:
-        #     break
         problem.title = jsp.jsonpath(information, '$.title')[0]
         problem.difficulty = int(jsp.jsonpath(information, '$.difficulty')[0])
         tags_s = list(jsp.jsonpath(information, '$.tags')[0])
@@ -174,9 +152,6 @@ def getProblemList(text, title='', algorithm="", difficulty=0, tag=''):
 # 界面切换函数
 
 def crawl_problem(problem, base_url, output_text):
-    # problem = dou[0]
-    # base_url = dou[-1]
-    # global stop_threads  # 引用全局变量
     try:
         url = base_url + str(problem.pid)
         html = HTML(url=url)
@@ -187,21 +162,21 @@ def crawl_problem(problem, base_url, output_text):
         md = re.sub("<h2>", "## ", md)
         md = re.sub("<h3>", "#### ", md)
         md = re.sub("</?[a-zA-Z]+[^<>]*>", "", md)
-        cfilename = './题目/' + "P" + str(problem.pid) + "-" + problem.title + '.md'
+        cfilename = './'
+        cfilename += difficulties[problem.difficulty].replace("/", "_") + "-" + "-".join(problem.tags)
+        if not os.path.exists(cfilename):
+            os.mkdir(cfilename)
+        cfilename += "/P" + str(problem.pid) + "-" + problem.title + ".md"
         with open(cfilename, "w", encoding="utf-8") as file:
             file.write(md)
-        output_text.insert(tk.END, "P" + str(problem.pid) + "-" + problem.title + "\n")
+        output_text.insert(tk.END, "P" + str(problem.pid) + "-" + problem.title + "...... 爬取成功" + "\n")
     except Exception as err:
         output_text.insert(tk.END, str(err) + "\n")
-
-    # 在每次操作后检查标志变量，如果为True，则停止线程
-    # if stop_threads:
-    #     return
 
 
 def crawl_problemSolu(problem, base_url, output_text):
     try:
-        url = base_url + problem
+        url = base_url + str(problem.pid)
         html = HTMLAuth(url=url)
         bs = BeautifulSoup(html, "lxml")
         js_code = bs.find("script").get_text()
@@ -210,10 +185,15 @@ def crawl_problemSolu(problem, base_url, output_text):
         json_file = json.loads(python_code)
         solution = json_file["currentData"]["solutions"]["result"]
         md = solution[0]["content"]
-        cfilename = './题解/P' + problem + '.md'
+        cfilename = './'
+        cfilename += difficulties[problem.difficulty].replace("/", "_") + "-" + "-".join(problem.tags)
+        if not os.path.exists(cfilename):
+            os.mkdir(cfilename)
+        cfilename += "/P" + str(problem.pid) + "-" + problem.title + "-题解" + ".md"
         with open(cfilename, "w", encoding="utf-8") as file:
             file.write(md)
-        output_text.insert(tk.END, "P" + problem + "......题解爬取成功" + "\n")
+        # output_text.insert(tk.END, "P" + problem + "......题解 爬取成功" + "\n")
+        output_text.insert(tk.END, "P" + str(problem.pid) + "-" + problem.title + "......题解 爬取成功" + "\n")
     except Exception as err:
         output_text.insert(tk.END, str(err) + "\n")
 
@@ -234,14 +214,8 @@ def crawl_data(start_entry, end_entry, output_text):
         startI = int(result1.group(1)) - 1000
         endI = int(result2.group(1)) - 1000
         probleList = filterList()
-        # for i in range(startI, endI + 1):
-        #     probleList.append(i)
         for problem in probleList[startI:endI+1]:
             crawl_problem(problem, base_url, output_text)
-        # HTMLAuth("https://www.luogu.com.cn/problem/solution/P1009")
-        # crawl_problemSolu("1009", "https://www.luogu.com.cn/problem/solution/P")
-        # saveSoluAsMDSolu(problemList=probleList, baseurl="https://www.luogu.com.cn/problem/solution/P")
-        # 你可以在这里添加爬取数据的后端逻辑
     else:
         output_text.delete(1.0, tk.END)
         output_text.insert(tk.END, "数据不合法，请检查你的输入数据\n")
@@ -256,17 +230,17 @@ def crawl_dataSolu(start_entry, end_entry, output_text):
     result1 = re.search(r'P([1-9][0-9]{3})', start)
     result2 = re.search(r'P([1-9][0-9]{3})', end)
 
-    base_url = "https://www.luogu.com.cn/problem/P"
+    base_url = "https://www.luogu.com.cn/problem/solution/P"
 
     if result1 and result2:
         output_text.delete(1.0, tk.END)
         output_text.insert(tk.END, "正在爬取，请稍后\n")
-        startI = int(result1.group(1))
-        endI = int(result2.group(2))
-        probleList = []
-        for i in range(startI, endI + 1):
-            probleList.append(str(i))
-        for problem in probleList:
+        startI = int(result1.group(1)) - 1000
+        endI = int(result2.group(1)) - 1000
+        probleList = filterList()
+        # for i in range(startI, endI + 1):
+        #     probleList.append(str(i))
+        for problem in probleList[startI:endI+1]:
             crawl_problemSolu(problem, base_url, output_text)
     else:
         output_text.delete(1.0, tk.END)
