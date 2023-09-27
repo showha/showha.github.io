@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sudoku Game</title>
+  <style>
+    /* Add your CSS styles here */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      /* text-align: center; */
+      align-self: flex-start;
+      position: fixed;
+    }
+
+    #sudokuContainer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      /* grid-template-rows: repeat(3, minmax(100px, 1fr)); */
+      grid-template-rows: repeat(3, 1fr);
+      /* gap: 10px; */
+      max-width: 90%;
+      margin: 0 auto;
+      width: 800px;
+      height: 800px;
+    }
+
+    /* .sudokuGrid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 3px; 数组表格边距
+      border: 1px solid black;
+    } */
+
+    table {
+      border: 1px solid black;
+      /* height: 50%; */
+      /* width: 50%; */
+      padding: 0;
+      margin: 0;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      /* border-collapse: collapse; */
+      /* padding-top: 75%; */
+    }
+
+    tr {
+      height: 11%;
+      /* width: 50%; */
+      padding: 0;
+      margin: 0;
+    }
+
+    .predefined {
+      width: 11%;
+      /* height: 50%; */
+      padding: 0;
+      margin: 0;
+      border: 1px solid black;
+      background-color: lightgray;
+    }
+
+    .inputable {
+      width: 11%;
+      /* height: 50%; */
+      padding: 0;
+      margin: 0;
+      border: 1px solid black;
+    }
+
+    input[type="text"] {
+      width: 75%;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      overflow: hidden;
+      outline: none;
+      background-color: transparent;
+    }
+
+    button#sudoku {
+      margin: 10px;
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      align-self: flex-end;
+      position: fixed;
+      left: 35%;
+    }
+
+    button#sudoku_more {
+      margin: 10px;
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      align-self: flex-end;
+      position: fixed;
+      right: 35%; 
+    }
+
+    /* .predefined {
+      height: 50%;
+      width: 50%;
+      background-color: lightgray;
+    } */
+  </style>
+</head>
+<body>
+  <h1>Sudoku Game</h1>
+  <div id="sudokuContainer">
+  </div>
+  <button id="sudoku" onclick="generateSudoku()">Generate Sudoku</button>
+  <button id="sudoku_more" onclick="generateSudoku_more()">Generate Sudokus</button>
+  <!-- <button onclick="validateSudoku()">Validate Sudoku</button> -->
+
+  <script>
+    let sudokuBoard = [];
+
+    function fetchSudoku() {
+      // const response = fetch('http://localhost:5000/sudoku').then(response => response.json());
+      const data = fetch('http://localhost:5000/sudoku').then(response => response.json());
+      // const data = response.json();
+      return data.sudoku;
+    }
+
+    function generateSudoku() {
+      // AJAX request to Python backend to generate a Sudoku puzzle
+      // Here, we'll use a predefined Sudoku for simplicity
+      fetch('http://localhost:5000/sudoku').then(response => response.json())
+        .then(data => {
+          const predefinedSudoku = data.sudoku;
+          const container = document.getElementById('sudokuContainer');
+          container.innerHTML = '';  // Clear the container
+          // const table = document.getElementById('sudokuBoard');
+          // table.innerHTML = '';  // Clear the table
+          const table = document.createElement('table');
+          container.appendChild(table);
+
+          for (let i = 0; i < 9; i++) {
+            const row = table.insertRow(i);
+            sudokuBoard.push([]);
+            for (let j = 0; j < 9; j++) {
+              const cell = row.insertCell(j);
+              if (predefinedSudoku[i][j] !== 0) {
+                cell.innerHTML = predefinedSudoku[i][j];
+                cell.classList.add('predefined');
+              } else {
+                // cell.innerHTML = '<input type="text" maxlength="1" oninput="onInput(this)" />';
+                cell.innerHTML = '<input type="text" oninput="onInput(this)" />';
+                cell.classList.add('inputable');
+              }
+              sudokuBoard[i].push(predefinedSudoku[i][j]);
+            }
+          }
+        });
+    }
+
+    function generateSudoku_more() {
+      fetch('http://localhost:5000/sudoku_more')
+        .then(response => response.json())
+        .then(data => {
+          const sudokus = data.sudokus;
+          const container = document.getElementById('sudokuContainer');
+          container.innerHTML = '';  // Clear the container
+
+          for (let i = 0; i < sudokus.length; i++) {
+            const table = document.createElement('table');
+            container.appendChild(table);
+
+            for (let j = 0; j < 9; j++) {
+              const row = table.insertRow(j);
+              for (let k = 0; k < 9; k++) {
+                const cell = row.insertCell(k);
+                if (sudokus[i][j][k] !== 0) {
+                  cell.innerHTML = sudokus[i][j][k];
+                  cell.classList.add('predefined');
+                } else {
+                  cell.innerHTML = '<input type="text" oninput="onInput(this)" />';
+                  cell.classList.add('inputable');
+                  // cell.innerHTML = '<input type="text" maxlength="1" oninput="onInput(this)" />';
+                }
+              }
+            }
+          }
+        });
+    }
+
+    function onInput(input) {
+      const row = input.parentElement.parentElement.rowIndex;
+      const col = input.parentElement.cellIndex;
+      sudokuBoard[row][col] = Number(input.value);
+    }
+
+    function validateSudoku() {
+      // TODO: Implement Sudoku validation logic
+      console.log('Validating Sudoku...');
+      console.log(sudokuBoard);
+    }
+  </script>
+</body>
+</html>
