@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>page2-1</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="main.js"></script>
+  <link rel="stylesheet" type="text/css" href="page.css">
+  <style>
+    #title1 {
+      font-family:'隶书', sans-serif;
+      top:50px;
+      height:117px;
+      font-size:50px;
+    }
+    #sudokuContainer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, minmax(100px, 1fr));
+      gap: 5px; /* 设置每个div的行间距 */
+      justify-content:space-evenly;
+      align-content:space-evenly;
+      margin: 0 auto;
+      width: 1600px;
+      height: 1600px;
+    }
+  </style>
+</head>
+<body id="body" background="psc (1).jpg"
+               style="background-repeat:no-repeat
+               background-attachment:fixed;
+               background-size:100% 100%; ">
+  <h1 id="title1">九宫格数独</h1>
+  <div id="sudokuContainer">
+  </div>
+<!--  <button id="sudoku" onclick="generateSudoku()">Generate Sudoku</button>-->
+  <button id="sudoku_more" onclick="generateSudoku()">生成</button>
+  <button id="check" onclick="prove()">验证</button>
+  <button id="answers" onclick="solveSudoku()">答案</button>
+  <button id="back" onclick="back()">返回</button>
+  <script>
+    function back() {
+      window.location.href="page2.html";
+    }
+  </script>
+</body>
+</html>

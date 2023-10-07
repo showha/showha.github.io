@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>page2</title>
+  <link rel="stylesheet" type="text/css" href="page.css">
+  <style>
+    #title {
+      border-width:0px;
+      position:absolute;
+      left:579px;
+      top:40px;
+      width:493px;
+      height:117px;
+      display:flex;
+      font-family:'隶书', sans-serif;
+      font-weight:400;
+      font-style:normal;
+      font-size:96px;
+      color: black;
+      background-color: transparent;
+    }
+  </style>
+</head>
+<body background="psc (1).jpg"
+               style="background-repeat:no-repeat
+               background-attachment:fixed;
+               background-size:100% 100%; ">
+  <h1 id="title">九宫格数独</h1>
+  <div id="sudokuContainer">
+  </div>
+<!--  <button id="sudoku" onclick="generateSudoku()">Generate Sudoku</button>-->
+  <button id="start1" onclick="start1()">难度1</button>
+  <button id="start2" onclick="start2()">难度2</button>
+  <button id="ruleback" onclick="back()">返回</button>
+  <script>
+    function start1() {
+      window.location.href="page2-1.html";
+    }
+    function start2() {
+      window.location.href="page2-2.html";
+    }
+    function back() {
+      window.location.href="page1.html";
+    }
+  </script>
+
+</body>
+</html>

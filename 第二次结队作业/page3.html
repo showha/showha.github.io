@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sudoku Game</title>
+  <link rel="stylesheet" type="text/css" href="page.css">
+</head>
+<body background="psc (1).jpg"
+               style="background-repeat:no-repeat
+               background-attachment:fixed;
+               background-size:100% 100%; ">
+  <h1 id="ruletitle">九宫格数独</h1>
+  <div id="sudokuContainer">
+  </div>
+<!--  <button id="sudoku" onclick="generateSudoku()">Generate Sudoku</button>-->
+  <button id="rule">游戏规则</button>
+  <textarea id="text">将1~9填入9x9的盘面中，使每行、每列、每个粗线宫（3x3）内均不重复。
+
+行：横排，从上到下依次为第1~9行，记作 R1~R9 或 r1~r9；、
+
+列：竖排，从左到右依次为第1~9列，记作 C1~C9 或 c1~c9；
+
+宫：粗线围住的3x3小九宫，从左到右、从上到下依次为第1~9宫，记作 B1~B9 或 b1~b9；
+
+提示数：题目中初始已存在的数字，作为解题推理的基础依据；</textarea>
+  <button id="back1" onclick="back()">返回</button>
+  <script>
+    function back() {
+      window.location.href="page1.html";
+    }
+  </script>
+
+</body>
+</html>

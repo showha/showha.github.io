@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>page2-2</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="main.js"></script>
+  <link rel="stylesheet" type="text/css" href="page.css">
+  <style>
+    #title1 {
+      font-family:'隶书', sans-serif;
+      font-size:43px;
+    }
+  </style>
+</head>
+<body background="psc (1).jpg"
+               style="background-repeat:no-repeat
+               background-attachment:fixed;
+               background-size:100% 100%; ">
+  <h1 id="title1">九宫格数独</h1>
+  <div id="sudokuContainer">
+  </div>
+  <button id="sudoku_more" onclick="generateSudoku_more()">生成</button>
+  <button id="check" onclick="prove()">验证</button>
+  <button id="answers" onclick="solveSudoku()">答案</button>
+  <button id="back" onclick="back()">返回</button>
+  <script>
+    function back() {
+      window.location.href="page2.html";
+    }
+  </script>
+</body>
+</html>
